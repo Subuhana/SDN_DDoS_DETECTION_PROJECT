@@ -1,0 +1,48 @@
+# Import libraries
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# Import the dataset
+df = pd.read_csv("/content/MY_Final_Dataset_csv.csv")
+
+# Splitting dataset into features and label
+x=df.drop('Label', axis =1)
+y = df['Label']
+
+# Splitting the dataset into the training set and the test set
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+
+# Feature scaling (or standardization)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+print(X_train.shape)
+print(y_train.shape)
+print(X_test.shape)
+print(y_test.shape)
+
+import tensorflow
+model=tensorflow.keras.models.Sequential()
+#Hidden layer definitions
+model.add(tensorflow.keras.layers.Dense(units=66, activation='relu', input_shape = X_train.shape[1:]))
+model.add(tensorflow.keras.layers.Dense(units=50, activation='relu'))
+model.add(tensorflow.keras.layers.Dropout(0.2))
+model.add(tensorflow.keras.layers.Dense(units=50, activation='relu' ))
+model.add(tensorflow.keras.layers.Dropout(0.2))
+model.add(tensorflow.keras.layers.Dense(units=50, activation='relu' ))
+#OP layer
+model.add(tensorflow.keras.layers.Dense(units=2, activation='sigmoid' ))
+model.summary()
+
+#compile
+model.compile(loss='sparse_categorical_crossentropy' , optimizer='adam' , metrics=['accuracy'])
+
+#fit
+history=model.fit(x=X_train, y=y_train, validation_split=0.1, epochs=200, batch_size=16)
+#evaluate
+testloss,testaccuracy= model.evaluate(X_test, y_test)
+print('test loss : ', testloss)
+print('test accuracy :', testaccuracy)
